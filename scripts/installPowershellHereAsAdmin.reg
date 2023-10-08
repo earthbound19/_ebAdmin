@@ -1,0 +1,33 @@
+Windows Registry Editor Version 5.00
+
+[HKEY_CLASSES_ROOT\Directory\Background\shell\PowerShellAsAdmin]
+@="Open PowerShell window here as administrator"
+"Extended"=-
+"HasLUAShield"=""
+"Icon"="powershell.exe"
+
+[HKEY_CLASSES_ROOT\Directory\Background\shell\PowerShellAsAdmin\command]
+@="powershell -WindowStyle Hidden -NoProfile -Command \"Start-Process -Verb RunAs powershell.exe -ArgumentList \\\"-NoExit -Command Push-Location \\\\\\\"\\\"%V/\\\\\\\"\\\"\\\""
+
+[HKEY_CLASSES_ROOT\Directory\shell\PowerShellAsAdmin]
+@="Open PowerShell window here as administrator"
+"Extended"=-
+"HasLUAShield"=""
+"Icon"="powershell.exe"
+
+[HKEY_CLASSES_ROOT\Directory\shell\PowerShellAsAdmin\command]
+@="powershell -WindowStyle Hidden -NoProfile -Command \"Start-Process -Verb RunAs powershell.exe -ArgumentList \\\"-NoExit -Command Push-Location \\\\\\\"\\\"%V/\\\\\\\"\\\"\\\""
+
+[HKEY_CLASSES_ROOT\Drive\shell\PowerShellAsAdmin]
+@="Open PowerShell window here as administrator"
+"Extended"=-
+"HasLUAShield"=""
+"Icon"="powershell.exe"
+
+[HKEY_CLASSES_ROOT\Drive\shell\PowerShellAsAdmin\command]
+@="powershell -WindowStyle Hidden -NoProfile -Command \"Start-Process -Verb RunAs powershell.exe -ArgumentList \\\"-NoExit -Command Push-Location \\\\\\\"\\\"%V/\\\\\\\"\\\"\\\""
+
+[-HKEY_CLASSES_ROOT\LibraryFolder\Background\shell\PowerShellAsAdmin]
+; To allow mapped drives to be available in elevated PowerShell
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System]
+"EnableLinkedConnections"=dword:00000001

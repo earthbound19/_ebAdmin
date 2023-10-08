@@ -1,0 +1,24 @@
+Windows Registry Editor Version 5.00
+; DESCRIPTION
+; Installs a right-click menu in Windows Explorer to take ownership of any folder and all its contents. Helps when permissions go wonky or anything locks you out of seeing or modifying a folder.
+
+; USAGE
+; Import this reg file by right-clicking it and clicking "Merge," or by double-clicking on it.
+
+
+; CODE
+[HKEY_CLASSES_ROOT\*\shell\runas]
+@="Take Ownership"
+"NoWorkingDirectory"=""
+
+[HKEY_CLASSES_ROOT\*\shell\runas\command]
+@="cmd.exe /c takeown /f \"%1\" && icacls \"%1\" /grant administrators:F"
+"IsolatedCommand"="cmd.exe /c takeown /f \"%1\" && icacls \"%1\" /grant administrators:F"
+
+[HKEY_CLASSES_ROOT\Directory\shell\runas]
+@="Take Ownership"
+"NoWorkingDirectory"=""
+
+[HKEY_CLASSES_ROOT\Directory\shell\runas\command]
+@="cmd.exe /c takeown /f \"%1\" /r /d y && icacls \"%1\" /grant administrators:F /t"
+"IsolatedCommand"="cmd.exe /c takeown /f \"%1\" /r /d y && icacls \"%1\" /grant administrators:F /t"

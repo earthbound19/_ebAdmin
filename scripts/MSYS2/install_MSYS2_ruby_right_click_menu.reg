@@ -1,0 +1,48 @@
+Windows Registry Editor Version 5.00
+; DESCRIPTION
+; Installs right-click menu options on folders and files to open an MSYS2 (as installed alongside Ruby 2.7) terminal in that location.
+; from https://github.com/trevorsandy/msys2-mingw-shortcut-menus
+
+; USAGE
+; Right-click this file and click "Merge," or double-click it, then click "Yes" and "Ok."
+
+
+; CODE
+; THIS SECTION is for right-click on a folder background.
+[HKEY_CLASSES_ROOT\Directory\Background\shell\mingw32]
+@="MinGW 32 Bash (Ruby 2.7) Here"
+"Icon"="\"C:\\Ruby27-x64\\msys64\\mingw32.exe\""
+[HKEY_CLASSES_ROOT\Directory\Background\shell\mingw32\command]
+@="C:\\Ruby27-x64\\msys64\\msys2_shell.cmd -mingw32 -where \"%v\""
+
+[HKEY_CLASSES_ROOT\Directory\Background\shell\mingw64]
+@="MinGW 64 Bash (Ruby 2.7) Here"
+"Icon"="\"C:\\Ruby27-x64\\msys64\\mingw64.exe\""
+[HKEY_CLASSES_ROOT\Directory\Background\shell\mingw64\command]
+@="C:\\Ruby27-x64\\msys64\\msys2_shell.cmd -mingw64 -where \"%v\""
+
+[HKEY_CLASSES_ROOT\Directory\Background\shell\msys2]
+@="MSYS2 Bash (Ruby 2.7) Here"
+"Icon"="\"C:\\Ruby27-x64\\msys64\\msys2.ico\""
+[HKEY_CLASSES_ROOT\Directory\Background\shell\msys2\command]
+@="C:\\Ruby27-x64\\msys64\\msys2_shell.cmd -msys -where \"%v\""
+
+
+; THIS SECTION is for right-click on a folder.
+[HKEY_CLASSES_ROOT\Directory\shell\mingw32]
+@="MinGW 32 Bash (Ruby 2.7) Here"
+"Icon"="\"C:\\Ruby27-x64\\msys64\\mingw32.exe\""
+[HKEY_CLASSES_ROOT\Directory\shell\mingw32\command]
+@="C:\\Ruby27-x64\\msys64\\msys2_shell.cmd -mingw32 -where \"%v\""
+
+[HKEY_CLASSES_ROOT\Directory\shell\mingw64]
+@="MinGW 64 Bash (Ruby 2.7) Here"
+"Icon"="\"C:\\Ruby27-x64\\msys64\\mingw64.exe\""
+[HKEY_CLASSES_ROOT\Directory\shell\mingw64\command]
+@="C:\\Ruby27-x64\\msys64\\msys2_shell.cmd -mingw64 -where \"%v\""
+
+[HKEY_CLASSES_ROOT\Directory\shell\msys2]
+@="MSYS2 Bash (Ruby 2.7) Here"
+"Icon"="\"C:\\Ruby27-x64\\msys64\\msys2.ico\""
+[HKEY_CLASSES_ROOT\Directory\shell\msys2\command]
+@="C:\\Ruby27-x64\\msys64\\msys2_shell.cmd -msys -where \"%v\""
