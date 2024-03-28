@@ -26,6 +26,8 @@ easydev
 scour
 gibberish
 faker
+coloraide
+coloraide_extras
 )
 
 # possible future-use modules:
