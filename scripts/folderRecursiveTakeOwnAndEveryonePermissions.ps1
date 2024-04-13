@@ -1,5 +1,5 @@
 # DESCRIPTION
-# Takes a folder name parameter recursively sets the current user (whatever account is logged in or running this command) as the owner. Also recursively grant full access to Everyone (for that folder and everything in it). This can resolve unexpected lockout from even opening files, in situations where those permissions are overkill, and become a bug when permissions go wrong (like a data drive with your files where the only security intended is your physical access to the drive -- and somehow something ended up giving read-only access to Administrators or System).
+# Takes a folder name parameter, and recursively sets the current user (whatever account is logged in or running this command) as the owner. Also recursively grants full access to Everyone (for that folder and everything in it). This can resolve unexpected lockout from even opening files in situations where those permissions are a bug from overkill and go wrong (like a data drive with your files where the only security intended is your physical access to the drive -- and somehow something ended up giving read-only access to Administrators or System).
 
 # DEPENDENCIES
 # - You not screwing things up by using this in a situation it should not be used in
