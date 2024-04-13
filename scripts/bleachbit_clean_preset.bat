@@ -1,1 +1,1 @@
-"C:\Program Files (x86)\BleachBit\bleachbit_console.exe" --no-uac --clean --preset
+"C:\Program Files (x86)\BleachBit\bleachbit_console.exe" --clean --preset
