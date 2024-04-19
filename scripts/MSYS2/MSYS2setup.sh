@@ -10,8 +10,9 @@
 # - terminal font, color, and mouse interaction preferences
 # - installing registry keys that provide right-click "MSYS2 Bash here" (also for compiler/dev environment) menus
 # - if you don't get the mentioned right-click menu after running this, try right-clicking the .reg file to install it and then click "Merge," or try running this script again from a terminal launched with administrator privileges.
+# Also see KNOWN ISSUES here.
 # KNOWN ISSUES
-# You may need to run this script from an Administrator prompt to do install things, but then apparently config copies only copy and work properly after running this install script as a regular user.
+# You may need to run this script from an Administrator prompt to do install things, but then apparently config copies only copy and work properly after running this install script as a regular user. YOU MAY be able to work around that by running the MSYS2 installer as Administrator, then answering "yes" when it asks you if you want to run the MSYS2 terminal, which will open it to the current user.
 
 
 # CODE
