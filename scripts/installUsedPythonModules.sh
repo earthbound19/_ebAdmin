@@ -28,6 +28,9 @@ gibberish
 faker
 coloraide
 coloraide_extras
+spotipy
+extended_configparser
+global_hotkeys
 )
 
 # possible future-use modules:
