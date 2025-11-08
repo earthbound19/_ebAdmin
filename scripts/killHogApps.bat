@@ -71,9 +71,9 @@ process -k dropbox.exe
 process -k DropboxUpdate.exe
 process -k greenshot.exe
 process -k robotaskbaricon.exe
-process -k DisplayFusionHookApp64.exe
-process -k DisplayFusionHookApp32.exe
-process -k DisplayFusion.exe
+REM process -k DisplayFusionHookApp64.exe
+REM process -k DisplayFusionHookApp32.exe
+REM process -k DisplayFusion.exe
 process -k CCC.exe
 process -k COCIManager.exe
 process -k slack.exe
@@ -105,3 +105,5 @@ process -k discord.exe
 process -k GoogleDriveFS.exe
 process -k crashpad_handler.exe
 process -k msedge.exe
+process -k OfficeClickToRun.exe
+process -k OfficeC2RClient.exe
