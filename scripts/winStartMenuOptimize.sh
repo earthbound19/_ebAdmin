@@ -1,6 +1,8 @@
+#!/usr/bin/env bash
+
 # DESCRIPTION
 # winStartMenuOptimize.sh - Windows Start Menu Optimization Script
-# Version: 1.2
+# Version: 1.3
 # Recursively scans Windows Start Menu folders and applies optimization rules:
 # - Promotes single useful items from folders to the root level
 # - Deletes empty folders
@@ -26,14 +28,15 @@
 
 # NOTES
 # - Creates timestamped ZIP backups in ~/Desktop/StartMenuBackups/ before modifications
-# - Log file: winStartMenuOptimizeDryRun.txt in current directory (overwritten each run)
+# - Log file: winStartMenuOptimizeDryRun.txt in Windows temp directory (overwritten each run)
 # - Processes folders from deepest to shallowest level for safe directory removal
 # - Excluded patterns: *readme*, *uninstall* (case insensitive), *.url files
 # - All other items (especially .lnk files) are considered useful and promoted
 # - Path resolution uses environment variables, cmd fallbacks, and legacy XP paths
 # - Progress indicators shown during long operations (backup creation, directory scanning)
 # - Color-coded output for better readability (disabled if output not to terminal)
-
+# - Permission-aware: Only promotes items when it can also delete the containing folder
+# - Detects duplicate folders between User and All Users locations and provides guidance
 
 # CODE
 set -euo pipefail
@@ -160,6 +163,27 @@ get_start_menu_path() {
     echo "$start_menu_path"
 }
 
+# Get All Users Start Menu path (for duplicate detection)
+get_all_users_path() {
+    local all_users_path=""
+    
+    if [[ -n "${ALLUSERSPROFILE:-}" ]]; then
+        all_users_path="${ALLUSERSPROFILE}/Microsoft/Windows/Start Menu"
+    elif [[ -n "${PROGRAMDATA:-}" ]]; then
+        all_users_path="${PROGRAMDATA}/Microsoft/Windows/Start Menu"
+    else
+        all_users_path=$(cmd /c "echo %ALLUSERSPROFILE%" 2>/dev/null | tr -d '\r')/Microsoft/Windows/Start\ Menu
+    fi
+    
+    all_users_path=$(cygpath -u "$all_users_path" 2>/dev/null || echo "$all_users_path")
+    
+    if [[ -d "$all_users_path" ]]; then
+        echo "$all_users_path"
+    else
+        echo ""
+    fi
+}
+
 # Check for zip dependency
 check_zip_dependency() {
     if ! command -v zip &>/dev/null; then
@@ -233,12 +257,50 @@ is_excluded() {
     return 1
 }
 
-# Scan and process directories
+# Check for duplicate folders between User and All Users locations
+check_duplicate_folders() {
+    local user_path="$1"
+    local all_users_path="$2"
+    local dup_file="$TEMP_DIR/duplicate_folders.txt"
+    
+    [[ -z "$all_users_path" ]] && return 0
+    [[ ! -d "$all_users_path" ]] && return 0
+    
+    > "$dup_file"
+    
+    while IFS= read -r folder; do
+        local rel="${folder#$user_path/}"
+        # Skip root level and common system folders
+        [[ -z "$rel" ]] && continue
+        [[ "$rel" == "Programs" ]] && continue
+        
+        if [[ -d "$all_users_path/$rel" ]]; then
+            echo "$rel" >> "$dup_file"
+        fi
+    done < <(find "$user_path" -type d -mindepth 1 -maxdepth 1 2>/dev/null || true)
+    
+    if [[ -s "$dup_file" ]]; then
+        local count=$(wc -l < "$dup_file")
+        warn "Found $count folder(s) that also exist in All Users Start Menu:"
+        sed 's/^/  - /' "$dup_file"
+        echo
+        echo "These folders will continue to appear in your Start Menu even if"
+        echo "deleted from one location, because Windows merges both menus."
+        echo "To completely remove these folders, you must process BOTH locations:"
+        echo "  1. Run as Administrator with --all-users to clean All Users location"
+        echo "  2. Run as regular user to clean your personal location"
+        echo
+    fi
+}
+
+# Scan and process directories with permission awareness
 process_start_menu() {
     local start_menu_path="$1"
     local temp_file="$TEMP_DIR/dirtree.txt"
     local moves_file="$TEMP_DIR/moves.txt"
     local rmdirs_file="$TEMP_DIR/rmdirs.txt"
+    local deferred_moves_file="$TEMP_DIR/deferred_moves.txt"
+    local deferred_rmdirs_file="$TEMP_DIR/deferred_rmdirs.txt"
     
     mkdir -p "$TEMP_DIR"
     
@@ -246,7 +308,7 @@ process_start_menu() {
     echo "Start Menu Optimization - $(date)" >> "$LOG_FILE"
     echo "========================================" >> "$LOG_FILE"
     
-    # Step 1: Get complete directory tree
+    # Step 1: Get complete directory tree (deepest first)
     progress "Building directory tree..."
     cd "$start_menu_path"
     find . -type d | sort -r > "$temp_file"
@@ -259,6 +321,8 @@ process_start_menu() {
     local current=0
     > "$moves_file"
     > "$rmdirs_file"
+    > "$deferred_moves_file"
+    > "$deferred_rmdirs_file"
     
     while IFS= read -r dir; do
         # Remove leading ./ if present
@@ -276,7 +340,12 @@ process_start_menu() {
         
         # Check if directory is empty
         if [[ -z "$(ls -A "$dir_path" 2>/dev/null)" ]]; then
-            echo "$dir" >> "$rmdirs_file"
+            # Check if we have permission to delete the parent folder
+            if [[ -w "$(dirname "$dir_path")" ]]; then
+                echo "$dir" >> "$rmdirs_file"
+            else
+                echo "$dir" >> "$deferred_rmdirs_file"
+            fi
             continue
         fi
         
@@ -284,6 +353,7 @@ process_start_menu() {
         local useful_items=0
         local useful_item=""
         local has_subdirs=false
+        local excluded_count=0
         
         while IFS= read -r item; do
             local item_path="$dir_path/$item"
@@ -292,47 +362,78 @@ process_start_menu() {
                 has_subdirs=true
                 break
             elif [[ -f "$item_path" ]]; then
-                if ! is_excluded "$item"; then
+                if is_excluded "$item"; then
+                    ((excluded_count++))
+                else
                     useful_items=$((useful_items + 1))
                     useful_item="$item"
                 fi
             fi
         done < <(ls -A "$dir_path" 2>/dev/null)
         
-        # Apply rule: Single useful item, no subdirs
+        # Apply rule: Single useful item, any number of excluded items, no subdirs
         if [[ $useful_items -eq 1 ]] && [[ "$has_subdirs" == "false" ]]; then
-            echo "$dir|$useful_item" >> "$moves_file"
+            # Check if we have permission to delete the containing folder
+            if [[ -w "$(dirname "$dir_path")" ]]; then
+                echo "$dir|$useful_item" >> "$moves_file"
+            else
+                echo "$dir|$useful_item" >> "$deferred_moves_file"
+            fi
         fi
         
     done < "$temp_file"
     
     echo -e "\r\033[K" # Clear progress line
     
-    # Step 3: Process moves (from deepest to shallowest)
-	if [[ -s "$moves_file" ]]; then
-		log "Processing folder promotions..."
-		while IFS='|' read -r dir item; do
-			local source="$start_menu_path/$dir/$item"
-			local target="$start_menu_path/$item"
-			
-			# Ensure target doesn't exist
-			if [[ -e "$target" ]]; then
-				target="$start_menu_path/$(basename "$dir")_$item"
-			fi
-			
-			if $DRY_RUN; then
-				echo "[DRY RUN] Would promote to Start Menu root: $dir/$item" >> "$LOG_FILE"
-				echo "[DRY RUN] Would delete folder: $dir" >> "$LOG_FILE"
-			else
-				if [[ -f "$source" ]]; then
-					mv -v "$source" "$target" >> "$LOG_FILE" 2>&1
-					echo "Promoted to Start Menu root: $dir/$item" >> "$LOG_FILE"
-				fi
-			fi
-		done < "$moves_file"
-	fi
+    # Step 3: Process moves where we have delete permission
+    if [[ -s "$moves_file" ]]; then
+        log "Processing folder promotions (with cleanup permission)..."
+        while IFS='|' read -r dir item; do
+            local source="$start_menu_path/$dir/$item"
+            local target="$start_menu_path/$item"
+            
+            # Ensure target doesn't exist
+            if [[ -e "$target" ]]; then
+                target="$start_menu_path/$(basename "$dir")_$item"
+            fi
+            
+            if $DRY_RUN; then
+                echo "[DRY RUN] Would promote to Start Menu root: $dir/$item" >> "$LOG_FILE"
+                echo "[DRY RUN] Would delete folder: $dir" >> "$LOG_FILE"
+            else
+                if [[ -f "$source" ]]; then
+                    mv -v "$source" "$target" >> "$LOG_FILE" 2>&1
+                    echo "Promoted to Start Menu root: $dir/$item" >> "$LOG_FILE"
+                fi
+            fi
+        done < "$moves_file"
+    fi
     
-    # Step 4: Remove empty directories (deepest first)
+    # Step 4: Note deferred moves (insufficient permissions)
+    if [[ -s "$deferred_moves_file" ]]; then
+        if $DRY_RUN; then
+            log "Detected promotions that require higher permissions:"
+        else
+            warn "Some promotions were deferred due to insufficient permissions:"
+        fi
+        
+        while IFS='|' read -r dir item; do
+            if $DRY_RUN; then
+                echo "[DRY RUN - NEEDS ADMIN] Would promote $dir/$item but cannot delete folder" >> "$LOG_FILE"
+                printf "  ${YELLOW}•${NC} %s\n" "$dir/$item (needs Admin)"
+            else
+                echo "DEFERRED - NEEDS ADMIN: $dir/$item" >> "$LOG_FILE"
+                printf "  ${YELLOW}•${NC} %s\n" "$dir/$item (needs Admin to delete folder)"
+            fi
+        done < "$deferred_moves_file"
+        
+        if ! $DRY_RUN; then
+            echo
+            warn "Run as Administrator to complete these promotions and clean up empty folders"
+        fi
+    fi
+    
+    # Step 5: Remove empty directories where we have permission
     if [[ -s "$rmdirs_file" ]]; then
         log "Processing empty directory removal..."
         while IFS= read -r dir; do
@@ -348,6 +449,22 @@ process_start_menu() {
             fi
         done < "$rmdirs_file"
     fi
+    
+    # Step 6: Note deferred empty directories
+    if [[ -s "$deferred_rmdirs_file" ]]; then
+        if ! $DRY_RUN; then
+            warn "Some empty folders could not be deleted (need Admin):"
+        fi
+        
+        while IFS= read -r dir; do
+            if $DRY_RUN; then
+                echo "[DRY RUN - NEEDS ADMIN] Would delete empty folder: $dir" >> "$LOG_FILE"
+            else
+                echo "DEFERRED - NEEDS ADMIN: Empty folder $dir" >> "$LOG_FILE"
+                printf "  ${YELLOW}•${NC} %s\n" "$dir"
+            fi
+        done < "$deferred_rmdirs_file"
+    fi
 }
 
 # Main execution
@@ -358,6 +475,9 @@ main() {
     echo "========================================="
     echo "   Windows Start Menu Optimizer"
     echo "========================================="
+    
+    # Initialize log (fresh each run)
+    > "$LOG_FILE"
     
     # Check permissions if targeting all users
     if $TARGET_ALL_USERS; then
@@ -378,8 +498,13 @@ main() {
         error "No write access to Start Menu folder.\nPlease check permissions or run as Administrator."
     fi
     
-    # Initialize log
-    > "$LOG_FILE"
+    # Check for duplicate folders with All Users (only in user mode)
+    if ! $TARGET_ALL_USERS; then
+        local all_users_path=$(get_all_users_path)
+        if [[ -n "$all_users_path" ]]; then
+            check_duplicate_folders "$start_menu_path" "$all_users_path"
+        fi
+    fi
     
     # Perform dry run
     log "Performing dry run..."
@@ -388,7 +513,9 @@ main() {
     # Open log file
     if [[ -f "$LOG_FILE" ]]; then
         log "Opening dry run log..."
-        start "$(cygpath -w "$LOG_FILE")" 2>/dev/null || cat "$LOG_FILE"
+        # Convert to Windows path for start command
+        local win_log=$(cygpath -w "$LOG_FILE" 2>/dev/null || echo "$LOG_FILE")
+        start "$win_log" 2>/dev/null || cat "$LOG_FILE"
     fi
     
     # Show summary
@@ -396,8 +523,17 @@ main() {
     echo "========================================="
     if [[ -s "$LOG_FILE" ]]; then
         local changes=$(grep -c "^\[DRY RUN\]" "$LOG_FILE" || true)
+        local deferred=$(grep -c "\[DRY RUN - NEEDS ADMIN\]" "$LOG_FILE" || true)
         echo "Dry run completed: $changes changes would be made"
-        grep "^\[DRY RUN\]" "$LOG_FILE" | sed 's/\[DRY RUN\]/  →/g'
+        if [[ $deferred -gt 0 ]]; then
+            echo "  ($deferred operations require Administrator privileges)"
+        fi
+        grep "^\[DRY RUN\]" "$LOG_FILE" | sed 's/\[DRY RUN\]/  →/g' | grep -v "NEEDS ADMIN" || true
+        if [[ $deferred -gt 0 ]]; then
+            echo
+            echo "  Operations requiring Admin:"
+            grep "\[DRY RUN - NEEDS ADMIN\]" "$LOG_FILE" | sed 's/\[DRY RUN - NEEDS ADMIN\]/  ⚠ /g'
+        fi
     else
         echo "Dry run completed: No changes needed"
     fi
@@ -406,10 +542,10 @@ main() {
     # Ask for confirmation
     if [[ -s "$LOG_FILE" ]]; then
         echo
-		echo "A dry run log file was opened in the default handler program for the .txt"
-		echo "extension, and a summary of the same was also printed above. Examine it for"
-		echo "accuracy, and if desired, continue to apply the changes."
-        echo -e "${YELLOW}To apply these changes, enter the word 'FLUAB' (without quote marks)."
+        echo "A dry run log file was opened in the default handler program for the .txt"
+        echo "extension, and a summary of the same was also printed above. Examine it for"
+        echo "accuracy, and if desired, continue to apply the changes."
+        echo -e "${YELLOW}To apply these changes, enter the word 'FLUAB' (without quote marks).${NC}"
         
         for ((attempt=1; attempt<=PASSWORD_ATTEMPTS; attempt++)); do
             read -s -p "Password: " entered_password
@@ -429,6 +565,13 @@ main() {
                 process_start_menu "$start_menu_path"
                 
                 success "Optimization complete!"
+                
+                # Show final reminder about deferred operations
+                if [[ -s "$TEMP_DIR/deferred_moves_file" ]] || [[ -s "$TEMP_DIR/deferred_rmdirs_file" ]]; then
+                    echo
+                    warn "Some operations were deferred due to insufficient permissions."
+                    echo "Run as Administrator with --all-users to complete these operations."
+                fi
                 break
             else
                 remaining=$((PASSWORD_ATTEMPTS - attempt))
@@ -452,7 +595,8 @@ main() {
     else
         echo "- Run with --all-users as Administrator to optimize All Users Start Menu"
     fi
-	echo "NOTE that you may end up with an inconsistent state (pointelessly empty start menu folders) if you do not to both.)
+    echo "NOTE: You may end up with empty Start Menu folders if you only run one mode."
+    echo "      Run BOTH modes (user and Admin) for complete cleanup."
     echo "========================================="
 }
 
