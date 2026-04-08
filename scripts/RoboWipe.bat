@@ -38,14 +38,15 @@ MKDIR robowipeStubDir
 :: Copy the contents of the following delete folders list into the delete list for this batch:
 echo C:\logs\tron > robowipeTempDirList.txt
 echo %TEMP% >> robowipeTempDirList.txt
-echo >> %LOCALAPPDATA%\Microsoft\Windows\INetCache\IE\
-echo >> %LOCALAPPDATA%\Temp
-echo >> %LOCALAPPDATA%\Spotify\Data\
-echo >> %LOCALAPPDATA%\Microsoft\OneDrive\setup\logs\
-echo >> %LOCALAPPDATA%\Local\Microsoft\OneDrive\logs\
-echo >> %LOCALAPPDATA%\Local\Microsoft\Office\16.0\WebServiceCache\
-echo >> %LOCALAPPDATA%\Local\D3DSCache
-echo >> %USERPROFILE%\AppData\LocalLow\Microsoft\CryptnetUrlCache\Content
+echo %LOCALAPPDATA%\Microsoft\Windows\INetCache\IE\ >> robowipeTempDirList.txt
+echo %LOCALAPPDATA%\Temp >> robowipeTempDirList.txt
+echo %LOCALAPPDATA%\Spotify\Data\ >> robowipeTempDirList.txt
+echo %LOCALAPPDATA%\Microsoft\OneDrive\setup\logs\ >> robowipeTempDirList.txt
+echo %LOCALAPPDATA%\Local\Microsoft\OneDrive\logs\ >> robowipeTempDirList.txt
+echo %LOCALAPPDATA%\Local\Microsoft\Office\16.0\WebServiceCache\ >> robowipeTempDirList.txt
+echo %LOCALAPPDATA%\Local\D3DSCache >> robowipeTempDirList.txt
+echo %USERPROFILE%\AppData\LocalLow\Microsoft\CryptnetUrlCache\Content >> robowipeTempDirList.txt
+echo %PROGRAMDATA%\NVIDIA Corporation\NVIDIA App\UpdateFramework >> robowipeTempDirList.txt
 
 :: (Re)-create a list of all temp folders
 	:: Had been trying to do the following with %~d0\ which is irrelevant after discovering the PUSDH and POPD commands:
@@ -76,8 +77,8 @@ POPD
 
 :: Everything else that follows in this script is re: http://arstechnica.com/civis/viewtopic.php?f=15&t=1162579
 
-:: NOTE: To NOT regain about the amount of RAM you have installed (in hard drive space) by turning off hibernation, comment out the next line by typing REM<space> at the start of it:
-powercfg /h off
+:: NOTE: To NOT turn off hibernation, comment out the next line by typing REM<space> at the start of it; note that if you do turn of hibernation it may regain hard drive space equal to about the amount of RAM you have installed:
+REM powercfg /h off
 
 :: Remove uninstallers for service packs:
 dism /online /cleanup-image /spsuperseded
