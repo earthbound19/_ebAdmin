@@ -107,3 +107,4 @@ process -k crashpad_handler.exe
 process -k msedge.exe
 process -k OfficeClickToRun.exe
 process -k OfficeC2RClient.exe
+process -k signal.exe
