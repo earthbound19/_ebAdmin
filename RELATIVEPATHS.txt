@@ -1,3 +1,4 @@
 scripts
 scripts\cygwin
 scripts\MSYS2
+C:\msys64\clang64\bin

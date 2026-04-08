@@ -26,10 +26,14 @@ MSYS2_packages=(
 vim
 perl
 p7zip
+unzip
 gcc
 make
 diffutils
 bc
+mingw-w64-clang-x86_64-tesseract-ocr      		# OCR engine
+mingw-w64-clang-x86_64-tesseract-data-eng	 	# English language data  
+mingw-w64-x86_64-ghostscript              		# PDF processor
 )
 
 # packages I may in the future use:
@@ -43,7 +47,7 @@ do
 	# pacman -R --noconfirm $element
 	pacman -S --noconfirm $element
 done
-
+exit
 # copy profile customizations into MSYS2 user root:
 cp ./.bashrc ~
 cp ./.minttyrc ~
