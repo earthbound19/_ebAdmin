@@ -1,0 +1,118 @@
+@echo off
+title Windows Installer Nuclear Repair Tool
+echo =============================================================
+echo         WINDOWS INSTALLER NUCLEAR REPAIR TOOL
+echo intended to help with "could not open key" errors in installs
+echo =============================================================
+echo.
+
+echo [1/7] Stopping Windows Installer services...
+net stop wuauserv /y >nul 2>&1
+net stop cryptSvc >nul 2>&1
+net stop bits >nul 2>&1
+net stop msiserver >nul 2>&1
+echo     [OK] Services stopped.
+echo.
+
+echo [2/7] Re-registering Windows Installer...
+msiexec /unreg >nul 2>&1
+msiexec /regserver >nul 2>&1
+echo     [OK] MSI re-registered.
+echo.
+
+echo [3/7] Resetting registry permissions (standard)...
+icacls "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Installer\UserData" /reset /t /q >nul 2>&1
+icacls "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Installer\Secure" /reset /t /q >nul 2>&1
+icacls "HKLM\SOFTWARE\Classes\Installer" /reset /t /q >nul 2>&1
+echo     [OK] Registry permissions reset.
+echo.
+
+echo [4/7] Restarting Windows Installer services...
+net start wuauserv >nul 2>&1
+net start cryptSvc >nul 2>&1
+net start bits >nul 2>&1
+net start msiserver >nul 2>&1
+echo     [OK] Services restarted.
+echo.
+
+echo [5/7] Configuring TrustedInstaller...
+sc config trustedinstaller start= demand >nul 2>&1
+net start trustedinstaller >nul 2>&1
+echo     [OK] TrustedInstaller ready.
+echo.
+
+echo [6/7] Clearing Package Cache...
+takeown /f "C:\ProgramData\Package Cache" /r /d y >nul 2>&1
+icacls "C:\ProgramData\Package Cache" /reset /t /q >nul 2>&1
+rmdir /s /q "C:\ProgramData\Package Cache" >nul 2>&1
+echo     [OK] Package cache cleared.
+echo.
+
+echo [7/7] Resetting Windows Installer security descriptors...
+msiexec /regserver >nul 2>&1
+echo     [OK] Security descriptors reset.
+echo.
+
+echo ============================================================
+echo                    REPAIR COMPLETE
+echo ============================================================
+echo.
+echo If you still get "Could not open key" errors, reboot into
+echo SAFE MODE and run this script again.
+echo.
+echo If Safe Mode also fails, use the NUCLEAR REGISTRY METHOD
+echo shown below (manual steps only - not automated).
+echo.
+echo ============================================================
+echo         NUCLEAR REGISTRY OWNERSHIP METHOD
+echo ============================================================
+echo.
+echo This forces ownership of the corrupted registry key using
+echo the TrustedInstaller or SYSTEM account.
+echo.
+echo STEP 1: Launch Registry Editor as SYSTEM
+echo -----------------------------------------
+echo   Option A (with NSudo):
+echo     NSudo.exe -U:T -P:E regedit.exe
+echo.
+echo   Option B (with PsExec from Microsoft Sysinternals):
+echo     psexec -i -d -s regedit.exe
+echo.
+echo STEP 2: Navigate to the offending key
+echo -----------------------------------------
+echo   HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\
+echo   CurrentVersion\Installer\UserData
+echo.
+echo STEP 3: Seize ownership
+echo -----------------------------------------
+echo   Right-click "UserData" ^> Permissions ^> Advanced
+echo   Next to Owner, click Change
+echo   Type: Administrators  (with an 's')
+echo   Click Check Names ^> OK
+echo   CHECK: "Replace owner on subcontainers and objects"
+echo   CHECK: "Replace all child object permission entries..."
+echo   Click Apply ^> Yes
+echo.
+echo STEP 4: Uninstall the broken program if there's a partial
+echo or broken install:
+echo -----------------------------------------
+echo   Control Panel ^> Uninstall a program
+echo   Find the program
+echo   Uninstall it (should now succeed)
+echo   Reboot ^> Reinstall fresh
+echo.
+echo ============================================================
+echo If ALL ELSE FAILS - also try these DISM commands:
+echo ============================================================
+echo   DISM /Online /Cleanup-Image /RestoreHealth
+echo   sfc /scannow
+echo.
+echo also, for a silent MSI install, try:
+echo /i package.msi /quiet /passive /l*v log.txt /norestart /norestart
+echo Or, from what I can tell:
+echo msiexec /i *name of msi file* /a /fvecmus /qn
+echo -- should force install the entire file and all it's contents as an admin
+echo ============================================================
+echo Script complete. Reboot the computer and try the installer.
+echo ALTERNATELY, try the installer in safe mode now.
+echo ============================================================
