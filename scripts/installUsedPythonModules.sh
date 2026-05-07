@@ -37,6 +37,7 @@ spotipy
 truststore
 openpyxl
 pyodbc
+aggdraw
 )
 
 # possible future-use modules:

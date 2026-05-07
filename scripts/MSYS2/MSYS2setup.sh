@@ -34,6 +34,7 @@ bc
 mingw-w64-clang-x86_64-tesseract-ocr      		# OCR engine
 mingw-w64-clang-x86_64-tesseract-data-eng	 	# English language data  
 mingw-w64-x86_64-ghostscript              		# PDF processor
+mingw-w64-x86_64-gtk3							# dependency of cairosvg Python
 )
 
 # packages I may in the future use:
