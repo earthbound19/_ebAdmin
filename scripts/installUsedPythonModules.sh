@@ -31,6 +31,12 @@ coloraide_extras
 spotipy
 extended_configparser
 global_hotkeys
+pyautogui
+gibberish
+spotipy
+truststore
+openpyxl
+pyodbc
 )
 
 # possible future-use modules:
@@ -44,11 +50,13 @@ global_hotkeys
 
 # Uncomment whichever applies to your python version:
 # pipExeName=pip
-pipExeName=pip3
+pipExeName=pip
 
 for element in ${pythonModules[@]}
 do
 	echo "----------------------------------------------------"
 	echo "Attempting to install $element via $pipExeName . . ."
 	$pipExeName install $element
+	# another option: pipe yes command to bypass yes prompt:
+	# yes | $pipExeName install $element
 done
