@@ -5,14 +5,26 @@
 :: imdisk must be installed and in your PATH.
 
 :: USAGE
-:: Copy this elsewhere and customize it per your wants to a ramdrive automatically at system start (for example with task scheduler). Or, double-click the script. Or, run it from cmd:
-::    make_exFAT_ramdrive.cmd
+:: Copy this elsewhere and customize it per your wants to create a ramdrive automatically at system start (for example with task scheduler). Or, hack and double-click the script. Or, run it from cmd:
+::    Ramdrive_make_nMB_exFAT.cmd
+:: If you run it from cmd you may pass a parameter %1, which is the size of the ramdrive in megabytes (where 1000 megabytes would be approximately a gigabyte). For example to create a 1,500 megabyte ramdrive, run:
+::    Ramdrive_make_nMB_exFAT.cmd 1500
 :: NOTES
 :: - The ramdrive is formatted as exFAT because that's a permissionless filesystem, which does away with permissions metadata overhead. Permissions will be created for files if they are copied out of the ramdrive to a typical permissioned file system like NTFS.
+:: - If you specify a size for the drive that exceeds the exFAT partition maximum size, automatic formatting of the ramdrive may fail, and you may need to manually format it.
 :: - Change the number in the RAMDRIVE_SIZE_IN_MILLION_BYTES variable assignment to change the drive size in million bytes. That may translate to ~megabytes, where 1,000 ~= 1 gigabyte, or 400 is ~400 megabytes.
 
 :: CODE
-set RAMDRIVE_SIZE_IN_MILLION_BYTES=1340
+@ECHO OFF
+
+SET DEFAULT_RAMDRIVE_SIZE=1240
+if "%1"=="" (
+    set RAMDRIVE_SIZE_IN_MILLION_BYTES=%DEFAULT_RAMDRIVE_SIZE%
+	echo "ramrdrive set to default (hard-coded) size %DEFAULT_RAMDRIVE_SIZE%."
+) else (
+    set RAMDRIVE_SIZE_IN_MILLION_BYTES=%1
+	echo "ramrdrive is set via switch 1 to size %1."
+)
 
 :: Check for administrator privileges
 net session >nul 2>&1
