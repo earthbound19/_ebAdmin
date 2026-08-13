@@ -1,1 +1,1 @@
-"C:\Users\ahall\AppData\Local\BleachBit\bleachbit_console.exe" --no-uac --clean --preset
+"%userprofile%\AppData\Local\BleachBit\bleachbit_console.exe" --no-uac --clean --preset
