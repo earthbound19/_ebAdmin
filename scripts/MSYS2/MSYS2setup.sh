@@ -30,6 +30,7 @@ gcc
 make
 diffutils
 bc
+rsync
 )
 
 # packages I may in the future use:
