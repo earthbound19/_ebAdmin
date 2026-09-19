@@ -1,0 +1,96 @@
+@echo off
+echo DO NOT RUN THIS unless you:
+echo 1. do a system backup or make a restore point - a way to revert it,
+echo if it breaks system boot, which at this point, IT DOES in at least
+echo one case. It needs further revision to NOT do that.
+echo 2. delete the exit statement near the start which is a safeguard
+echo 3. rename it from a safeguard .bat.txt to just .bat.
+
+pause
+exit
+
+:: ==============================================================================
+::                   MITIGATE UNWANTED WINDOWS SERVICES
+::     adapted and revised from fryStupidWindowsServices.sh for MSYS2 Bash
+::         Run via NSudo < CMD as TrustedInstaller with All Privileges
+:: ==============================================================================
+
+echo ===================================================
+echo [1/5] BLOCKING TEXTINPUTHOST.EXE (VRAM RECLAIM)
+echo ===================================================
+echo.
+reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\TextInputHost.exe" /v Debugger /t REG_SZ /d "systray.exe" /f
+taskkill /F /IM TextInputHost.exe >nul 2>&1
+echo [OK] TextInputHost.exe permanently blocked from GPU execution.
+echo.
+
+echo ===================================================
+echo [2/5] DISABLING WINDOWS UPDATE & SELF-HEALING SET
+echo ===================================================
+echo.
+
+set "UPDATE_SERVICES=wuauserv WaaSMedicSvc UsoSvc sedsvc wisvc"
+
+for %%U in (%UPDATE_SERVICES%) do (
+    echo [--] Killing Update Component: %%U
+    sc stop "%%U" >nul 2>&1
+    sc config "%%U" start= disabled >nul 2>&1
+)
+
+echo.
+echo ===================================================
+echo [3/5] DISABLING LOW-RISK & TELEMETRY SERVICES
+echo ===================================================
+echo.
+
+set "DISABLE_LIST=NgcSvc DoSvc NgcCtnrSvc LicenseManager TabletInputService CscService wscsvc WerSvc SysMain SwitchBoard ehRecvr ehSched WMPNetworkSvc HomeGroupListener HomeGroupProvider WinDefend AdobeUpdateService IEEtwCollectorService wlidsvc CDPSvc tapi TrkWks wcncsvc SharedAccess edgeupdatem SEMgrSvc RasAuto RasMan SessionEnv TermService UmRdpService RemoteRegistry shpamsvc SgrmBroker UevAgentService WalletService Sense WinRM SecurityHealthService XboxGipSvc XblAuthManager XblGameSave XboxNetApiSvc AJRouter gusvc gupdate gupdatem dbupdate dbupdatem WatAdminSvc osrss nvUpdatusService brave bravem embeddedmode fhsvc DiagTrack RetailDemo MozillaMaintenance BITS"
+
+for %%S in (%DISABLE_LIST%) do (
+    echo [--] Disabling: %%S
+    sc stop "%%S" >nul 2>&1
+    sc config "%%S" start= disabled >nul 2>&1
+)
+
+echo.
+echo ===================================================
+echo [4/5] DISABLING NON-ESSENTIAL DYNAMIC PER-USER SERVICES
+echo ===================================================
+echo.
+:: Note: The services below handle UWP Mail/Calendar/Contacts sync and background telemetry. 
+:: Disabling these is completely safe for classic Win32 dev, AI, and gaming workloads.
+
+set "CORE_USER_SVC_PREFIXES=MessagingService PimIndexMaintenanceSvc UserDataSvc UnistoreSvc"
+
+for %%P in (%CORE_USER_SVC_PREFIXES%) do (
+    for /f "tokens=2 delims=: " %%A in ('sc query type^= service state^= all ^| findstr /i /b "SERVICE_NAME: %%P"') do (
+        echo [--] Disabling dynamic service: %%A
+        sc stop "%%A" >nul 2>&1
+        sc config "%%A" start= disabled >nul 2>&1
+    )
+)
+
+echo.
+echo ===================================================
+echo [5/5] OPTIONAL DYNAMIC PER-USER SERVICES
+echo ===================================================
+echo.
+:: OPTIONAL BLOCK: Uncomment or comment out prefixes below based on preference.
+::
+:: - BcastDVRUserService : Disables Xbox Game Bar clips, background screen recording, and Win+Alt+R.
+:: - UdkUserSvc          : Disables Shell App Runtime (Start Menu recommended section & Search flyout polish).
+
+set "OPTIONAL_USER_SVC_PREFIXES=BcastDVRUserService UdkUserSvc"
+
+for %%P in (%OPTIONAL_USER_SVC_PREFIXES%) do (
+    for /f "tokens=2 delims=: " %%A in ('sc query type^= service state^= all ^| findstr /i /b "SERVICE_NAME: %%P"') do (
+        echo [--] Disabling optional dynamic service: %%A
+        sc stop "%%A" >nul 2>&1
+        sc config "%%A" start= disabled >nul 2>&1
+    )
+)
+
+echo.
+echo ===================================================
+echo [COMPLETE] Services mitigated.
+echo ===================================================
+pause
