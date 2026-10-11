@@ -1,0 +1,5 @@
+Windows Registry Editor Version 5.00
+
+[HKEY_CURRENT_USER\Console\%%Startup]
+"DelegationConsole"="{B170A035-A2D3-424F-A167-9EC5F066E110}"
+"DelegationTerminal"="{2EACA947-7F5F-44A4-B517-A5360FBA00E0}"
