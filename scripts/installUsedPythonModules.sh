@@ -5,38 +5,44 @@
 # Run without any parameter:
 #    installUsedPythonModules.sh
 
-
 # CODE
 python -m pip install --upgrade pip
 
 pythonModules=(
-numpy
-scipy
-more_itertools
-colorspacious
-colour-science
-spectra
+argparse
 ciecam02
-colormap
-colorgram.py
-Quartz
-Foundation
-Pillow
-easydev
-scour
-gibberish
-faker
 coloraide
 coloraide_extras
-spotipy
+colorgram.py
+colormap
+colorspacious
+colour-science
+customtkinter
+dotenv
+easydev
 extended_configparser
-global_hotkeys
-pyautogui
+faker
+Foundation
 gibberish
+gibberish
+global_hotkeys
+more_itertools
+numpy
+openpyxl
+pathlib
+Pillow
+pyautogui
+pyodbc
+PyQt6
+Quartz
+scipy
+screeninfo
+scour
+scikit-learn
+spectra
+spotipy
 spotipy
 truststore
-openpyxl
-pyodbc
 )
 
 # possible future-use modules:
