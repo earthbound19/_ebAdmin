@@ -1,5 +1,4 @@
-Font=Input Mono Narrow
-#That may need to be InputMonoNarrow.
+Font=InputMonoNarrow
 # Prior alternate terminal font choices: Noto Sans Mono, Fira Mono . . Deja Vu Sans Mono?
 FontHeight=13
 MiddleClickAction=void

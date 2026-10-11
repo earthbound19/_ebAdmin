@@ -1,26 +1,26 @@
+#!/bin/bash
 # DESCRIPTION
-# Installs desired msys2 packages and does other customization setup.
+# Installs often (or potentially often?) used MSYS2 packages in the install directories' global package repository, and updates configuration files in the MSYS2 installation directory (MSYS2 system scope customization).
 
 # USAGE
-# Run this script without any parameters:
-#    MSYS2setup.sh
+# Run this script with administrator/root privileges from an MSYS2 bash terminal:
+#    ./setup_MSYS2_local_system_and_packages.sh
 # NOTES
-# This overwrites .ini and bash profile files with settings from the same directory this script is kept in. Those settings include:
-# - inheriting SYSTEM environment variables on terminal launch
-# - terminal font, color, and mouse interaction preferences
-# - installing registry keys that provide right-click "MSYS2 Bash here" (also for compiler/dev environment) menus
-# - if you don't get the mentioned right-click menu after running this, try right-clicking the .reg file to install it and then click "Merge," or try running this script again from a terminal launched with administrator privileges.
-# Also see KNOWN ISSUES here.
-# KNOWN ISSUES
-# You may need to run this script from an Administrator prompt to do install things, but then apparently config copies only copy and work properly after running this install script as a regular user. YOU MAY be able to work around that by running the MSYS2 installer as Administrator, then answering "yes" when it asks you if you want to run the MSYS2 terminal, which will open it to the current user.
+# - this requires write access to the MSYS2 root installation directory (granted by admin privilege).
+# - this overwrites .ini and shell script files in the MSYS2 root installation directory with custom configs. See the .ini and .cmd files alongside this script.
 
 
 # CODE
-# TO DO:
-# - fix the KNOWN ISSUE listed above if possible.
-# - activate native symlinks via uncomment line in msys2_shell.cmd?
-# - integrate mintty-colors or themes from the ../mintty-colors folder?
-echo "u go kaboomy haha now you dead moldy voldy -Snep"
+# Require administrator privileges and exit if none
+net session >/dev/null 2>&1
+if [ $? -ne 0 ]; then
+	echo "!----------------!"
+	echo "ERROR: This script must be run with Administrator privileges."
+	echo "Restart your MSYS2 terminal as an Administrator and run this"
+	echo "script again."
+	echo "!----------------!"
+	exit 1
+fi
 
 MSYS2_packages=(
 vim
@@ -33,32 +33,21 @@ bc
 rsync
 )
 
-# packages I may in the future use:
-# mingw-w64-x86_64-libc++
-# mingw-w64-x86_64-boost
-# mingw-w64-x86_64-gcc
-
-for element in ${MSYS2_packages[@]}
+for element in "${MSYS2_packages[@]}"
 do
-	# UNINSTALL option:
-	# pacman -R --noconfirm $element
-	pacman -S --noconfirm $element
+	pacman -S --noconfirm "$element"
 done
 
-# copy profile customizations into MSYS2 user root:
-cp ./.bashrc ~
-cp ./.minttyrc ~
-
-# get MSYS2 install root path; sed expression that captures MSYS2 install location, PERHAPS ERRONEOUSLY assuming that it's installed in a directory two up from what is returned by $WD; so check for existence of files there, and warn if not found. But if found, don't announce anything: just copy the files we want to copy over them:
+# Get MSYS2 install root path and copy system-level config files
 MSYS2installDir="$WD"
-MSYS2installDir=$(dirname $MSYS2installDir)
-MSYS2installDir=$(dirname $MSYS2installDir)
-if [ -f $MSYS2installDir/msys2_shell.cmd ] && [ -f $MSYS2installDir/msys2.ini ] && [ -f $MSYS2installDir/mingw64.ini ] && [ -f $MSYS2installDir/mingw32.ini ]
+MSYS2installDir=$(dirname "$MSYS2installDir")
+MSYS2installDir=$(dirname "$MSYS2installDir")
+if [ -f "$MSYS2installDir/msys2_shell.cmd" ] && [ -f "$MSYS2installDir/msys2.ini" ] && [ -f "$MSYS2installDir/mingw64.ini" ] && [ -f "$MSYS2installDir/mingw32.ini" ]
 then
-	cp msys2_shell.cmd $MSYS2installDir
-	cp msys2.ini $MSYS2installDir
-	cp mingw64.ini $MSYS2installDir
-	cp mingw32.ini $MSYS2installDir
+	cp msys2_shell.cmd "$MSYS2installDir"
+	cp msys2.ini "$MSYS2installDir"
+	cp mingw64.ini "$MSYS2installDir"
+	cp mingw32.ini "$MSYS2installDir"
 else
 	echo "!----------------!"
 	echo "PROBLEM: one or more of these files was not found in the MSYS2 install directory:"
@@ -68,25 +57,8 @@ else
 	echo ""
 fi
 
-
-echo "DONE. If MSYS2 is not up to date, you may wish to run these commands, then exit the MSYS2 terminal, and run them again:"
+echo "SYSTEM SETUP DONE. If MSYS2 is not up to date, you may wish to run these commands, then exit the MSYS2 terminal, and run them again:"
 echo "pacman -Syy"
 echo "pacman -Suu"
-
-echo "You may also wish to double-click either install_MSYS2_right_click_menu.reg or install_MSYS2_ruby_right_click_menu.reg to add right-click folder background and folder menus that will open the MSYS2 / MinGW terminals."
-
-
-# DEVELOPER NOTES
-# Some reference on that:
-# h/t: https://www.rjh.io/blog/20190722-msys2_setup/
-# The right-click menu provided via my fork of a tool: https://github.com/earthbound19/msys2-mingw-shortcut-menus
-#
-# In my Cygwin setup and I don't know why:
-# libmpfr-devel, libgmp-devel, lynx
-# gcc-g++, but I hope just gcc here is equivalent
-# chere
-#
-# vim is in this list because it includes xxd. But, um . . also vim? :|
-#
-# I hoped this would include iostream.h; nope:
-# mingw-w64-x86_64-gcc
+echo ""
+echo "ALSO, if you have not already, you may wish to run the custom MSYS2 user setup via setup_MSYS2_local_user.sh."
