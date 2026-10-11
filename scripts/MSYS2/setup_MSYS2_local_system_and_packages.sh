@@ -22,6 +22,27 @@ if [ $? -ne 0 ]; then
 	exit 1
 fi
 
+
+echo "Copying system config files.."
+# Get MSYS2 install root path using cygpath
+MSYS2installDir=$(cygpath -m /)
+# Ensure trailing slash is consistent for the -f tests
+MSYS2installDir="${MSYS2installDir%/}/"
+# echo MSYS2installDir is $MSYS2installDir
+
+if [ -f "${MSYS2installDir}msys2_shell.cmd" ] && [ -f "${MSYS2installDir}msys2.ini" ] && [ -f "${MSYS2installDir}mingw64.ini" ] && [ -f "${MSYS2installDir}mingw32.ini" ]
+then
+    cp msys2_shell.cmd "$MSYS2installDir"
+    cp msys2.ini "$MSYS2installDir"
+    cp mingw64.ini "$MSYS2installDir"
+    cp mingw32.ini "$MSYS2installDir"
+    cd "$MSYS2installDir"
+else
+    echo "!----------------!"
+    echo "PROBLEM: one or more files not found in: $MSYS2installDir"
+    echo "!----------------!"
+fi
+
 MSYS2_packages=(
 vim
 perl
@@ -33,29 +54,12 @@ bc
 rsync
 )
 
+echo "Installing packages from list of used ones.."
+
 for element in "${MSYS2_packages[@]}"
 do
 	pacman -S --noconfirm "$element"
 done
-
-# Get MSYS2 install root path and copy system-level config files
-MSYS2installDir="$WD"
-MSYS2installDir=$(dirname "$MSYS2installDir")
-MSYS2installDir=$(dirname "$MSYS2installDir")
-if [ -f "$MSYS2installDir/msys2_shell.cmd" ] && [ -f "$MSYS2installDir/msys2.ini" ] && [ -f "$MSYS2installDir/mingw64.ini" ] && [ -f "$MSYS2installDir/mingw32.ini" ]
-then
-	cp msys2_shell.cmd "$MSYS2installDir"
-	cp msys2.ini "$MSYS2installDir"
-	cp mingw64.ini "$MSYS2installDir"
-	cp mingw32.ini "$MSYS2installDir"
-else
-	echo "!----------------!"
-	echo "PROBLEM: one or more of these files was not found in the MSYS2 install directory:"
-	echo "msys2_shell.cmd msys2.ini mingw64.ini mingw32.ini"
-	echo "To copy custom configuration, locate those files manually, and copy the files from the path of this script to that location."
-	echo "!----------------!"
-	echo ""
-fi
 
 echo "SYSTEM SETUP DONE. If MSYS2 is not up to date, you may wish to run these commands, then exit the MSYS2 terminal, and run them again:"
 echo "pacman -Syy"
