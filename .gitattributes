@@ -1,0 +1,12 @@
+# Shell scripts and dotfiles consumed by POSIX tools
+*.sh text eol=lf
+.bashrc text eol=lf
+.minttyrc text eol=lf
+.vimrc text eol=lf
+.gitconfig text eol=lf
+
+# Windows-native launcher/config files etc.
+*.ini text eol=crlf
+*.cmd text eol=crlf
+*.bat text eol=crlf
+*.reg text eol=crlf

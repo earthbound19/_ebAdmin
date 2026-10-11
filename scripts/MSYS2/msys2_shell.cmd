@@ -3,6 +3,8 @@
 
 :: USAGE
 :: Install in the MSYS2 configuration files, via setup_MSYS2_local_system_and_packages.sh, in the same directory as this script.
+:: KNOWN ISSUE:
+:: Save this file with Windows (CR LF) line endings, or bad things may happen.
 
 
 :: CODE
