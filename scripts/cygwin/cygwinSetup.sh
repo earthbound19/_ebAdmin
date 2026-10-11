@@ -2,7 +2,7 @@
 # Commands to install wanted tools and custom configuration for a Cygwin install.
 
 # USAGE
-# Maybe don't use this. I have come to far prefer MSYS2 over Cygwin. See MSYS2setup.sh. But if you use this, run it from the directory with the installer, with this script and the other files it needs (CYGWIN_fstab, my.minttyrc.settings.txt) in your PATH, or copy the Cygwin installer to this directory before executing this script. Comment out the line for the Cygwin installer version you don't want to use.
+# Maybe don't use this. I have come to far prefer MSYS2 over Cygwin. See setup_MSYS2_local_system_and_packages.sh. But if you use this, run it from the directory with the installer, with this script and the other files it needs (CYGWIN_fstab, my.minttyrc.settings.txt) in your PATH, or copy the Cygwin installer to this directory before executing this script. Comment out the line for the Cygwin installer version you don't want to use.
 # Then open the Cygwin prompt, cd to this path, and run the script without any parameter:
 #    cygwinSetup.sh
 

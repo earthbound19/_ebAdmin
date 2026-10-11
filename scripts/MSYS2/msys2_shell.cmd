@@ -2,7 +2,7 @@
 :: My custom version of a script that launches MSYS2 (with the settings that I want).
 
 :: USAGE
-:: Install in the MSYS2 configuration files, via MSYS2setup.sh, in the same directory as this script.
+:: Install in the MSYS2 configuration files, via setup_MSYS2_local_system_and_packages.sh, in the same directory as this script.
 
 
 :: CODE
