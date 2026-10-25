@@ -1,0 +1,23 @@
+Windows Registry Editor Version 5.00
+; ===================================================================
+; DisableMPO.reg
+; Disables Multi-Plane Overlay (MPO) in the Windows Desktop Window
+; Manager (DWM).
+;
+; WHY: MPO is a hardware-accelerated display composition path used by
+; the GPU driver and DWM. On some GPU/driver/monitor combinations it
+; causes intermittent input lag, dropped clicks, cursor stutter, and
+; "ghost" double-clicks because the compositor hands frames (and the
+; cursor plane) between hardware overlays. The problem lives BELOW
+; the service layer, which is why it survives Safe Mode.
+;
+; HOW: OverlayTestMode = 5 forces DWM to fall back to the legacy
+; (non-MPO) composition path. Same switch Microsoft Support uses for
+; MPO-related flicker/lag on Windows 10 2004+ and Windows 11.
+;
+; SCOPE: HKLM (machine-wide). Requires FULL REBOOT to take effect.
+;
+; TO REVERT: Apply ReEnableMPO.reg and reboot.
+; ===================================================================
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\Dwm]
+"OverlayTestMode"=dword:00000005

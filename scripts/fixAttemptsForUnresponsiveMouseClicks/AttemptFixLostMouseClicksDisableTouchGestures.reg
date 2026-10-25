@@ -1,0 +1,22 @@
+Windows Registry Editor Version 5.00
+; Disable Press-and-Hold for right-click (user + machine)
+[HKEY_CURRENT_USER\Software\Microsoft\Wisp\Touch]
+"TouchMode_hold"=dword:00000000
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Wisp\Touch]
+"TouchMode_hold"=dword:00000000
+
+; Disable Pen Flicks (user + machine)
+[HKEY_CURRENT_USER\Software\Microsoft\Wisp\Pen\SysGestures]
+"Flicks"=dword:00000000
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Wisp\Pen\SysGestures]
+"Flicks"=dword:00000000
+
+; Kill dynamic touch feedback
+[HKEY_CURRENT_USER\Software\Microsoft\Wisp\Touch]
+"Bouncing"=dword:00000000
+"Friction"=dword:00000000
+
+; Tighten mouse double-click spatial tolerance
+[HKEY_CURRENT_USER\Control Panel\Mouse]
+"DoubleClickHeight"="4"
+"DoubleClickWidth"="4"
