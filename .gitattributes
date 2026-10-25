@@ -12,4 +12,4 @@
 *.reg text eol=crlf
 
 # .reg file stupidness
-*.reg text working-tree-encoding=UTF-16LE eol=crlf
+*.reg text working-tree-encoding=UTF-16LE-BOM eol=crlf
