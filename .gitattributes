@@ -10,3 +10,6 @@
 *.cmd text eol=crlf
 *.bat text eol=crlf
 *.reg text eol=crlf
+
+# .reg file stupidness
+*.reg text working-tree-encoding=UTF-16LE eol=crlf
