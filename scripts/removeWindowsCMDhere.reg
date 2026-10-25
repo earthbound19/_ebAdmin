@@ -1,12 +1,9 @@
 Windows Registry Editor Version 5.00
-; DESCRIPTION
-; Uninstalls "Command Prompt Here" right-click menu for folder.
 
-; USAGE
+; Uninstalls "Command Prompt Here" right-click menu for folder.
 ; Double-click this .reg file and click "Yes" to merge it into the registry, then click "OK."
 
 
-;CODE
 ; Uninstall "Command Prompt Here" for folder right-click menu:
 [-HKEY_CLASSES_ROOT\Directory\shell\OpenNew]
 [-HKEY_CLASSES_ROOT\Directory\shell\OpenNew\Command]

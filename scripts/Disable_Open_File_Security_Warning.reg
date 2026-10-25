@@ -1,15 +1,14 @@
 Windows Registry Editor Version 5.00
-; DESCRIPTION
-; Disables nags to be certain you want to open files originating from a network source which you trust but which Windows doesn't.
+
+; Disables nags asking if you're certain you want to open files originating from a network source which you trust but which Windows doesn't.
+
 ; Created by: Shawn Brink
 ; http://www.sevenforums.com
 ; Tutorial: http://www.sevenforums.com/tutorials/182353-open-file-security-warning-enable-disable.html
 
-; USAGE
 ; Import this reg file by right-clicking it and clicking "Merge," or by double-clicking on it.
 
 
-; CODE
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\Attachments]
 "SaveZoneInformation"=dword:00000001
 

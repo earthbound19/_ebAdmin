@@ -1,10 +1,7 @@
 Windows Registry Editor Version 5.00
-; DESCRIPTION
+
 ; Installs "Command Prompt Here" right-click menu for folder.
-
-; USAGE
 ; Double-click this .reg file and click "Yes" to merge it into the registry, then click "OK."
-
 
 ;CODE
 ; Install "Command Prompt Here" for folder right-click menu:
