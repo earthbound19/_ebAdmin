@@ -27,6 +27,12 @@ Windows Registry Editor Version 5.00
 [HKEY_CURRENT_USER\Software\Classes\Directory\Background\shell\msys2\command]
 @="C:\\msys64\\msys2_shell.cmd -msys -where \"%v\""
 
+[HKEY_CURRENT_USER\Software\Classes\Directory\Background\shell\ucrt64]
+@="UCRT64 Bash Here"
+"Icon"="\"C:\\msys64\\ucrt64.exe\""
+[HKEY_CURRENT_USER\Software\Classes\Directory\Background\shell\ucrt64\command]
+@="C:\\msys64\\msys2_shell.cmd -ucrt64 -where \"%v\""
+
 
 ; THIS SECTION is for right-click on a folder.
 [HKEY_CURRENT_USER\Software\Classes\Directory\shell\mingw32]
@@ -46,3 +52,9 @@ Windows Registry Editor Version 5.00
 "Icon"="\"C:\\msys64\\msys2.ico\""
 [HKEY_CURRENT_USER\Software\Classes\Directory\shell\msys2\command]
 @="C:\\msys64\\msys2_shell.cmd -msys -where \"%v\""
+
+[HKEY_CURRENT_USER\Software\Classes\Directory\shell\ucrt64]
+@="UCRT64 Bash Here"
+"Icon"="\"C:\\msys64\\ucrt64.exe\""
+[HKEY_CURRENT_USER\Software\Classes\Directory\shell\ucrt64\command]
+@="C:\\msys64\\msys2_shell.cmd -ucrt64 -where \"%v\""

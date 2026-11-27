@@ -12,9 +12,10 @@ Windows Registry Editor Version 5.00
 [-HKEY_CURRENT_USER\Software\Classes\Directory\Background\shell\mingw32]
 [-HKEY_CURRENT_USER\Software\Classes\Directory\Background\shell\mingw64]
 [-HKEY_CURRENT_USER\Software\Classes\Directory\Background\shell\msys2]
+[-HKEY_CURRENT_USER\Software\Classes\Directory\Background\shell\ucrt64]
 
 ; THIS SECTION removes right-click on folder options.
 [-HKEY_CURRENT_USER\Software\Classes\Directory\shell\mingw32]
 [-HKEY_CURRENT_USER\Software\Classes\Directory\shell\mingw64]
 [-HKEY_CURRENT_USER\Software\Classes\Directory\shell\msys2]
-
+[-HKEY_CURRENT_USER\Software\Classes\Directory\shell\ucrt64]
