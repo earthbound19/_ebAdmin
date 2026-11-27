@@ -23,29 +23,29 @@
 # CODE
 # TO DO: re-check which of these correspond to functionality I want in my cross-platform _ebDev scripts:
 brewPackages=(
-gnu-sed
-coreutils
-ffmpeg
-pandoc
-automake
 autoconf
-libyaml
-readline
-libxslt
-unixodbc
-GraphicsMagick
-pyenv
-findutils
-rename
-exiftool
-jq
+automake
 basictex
-dcraw
 blink1
-tcl-tk
+coreutils
+dcraw
+exiftool
+ffmpeg
+findutils
+gnu-sed
+GraphicsMagick
+jq
+libxslt
+libyaml
 nkf
-p7zip
 openimageio
+p7zip
+pandoc
+pyenv
+readline
+rename
+tcl-tk
+unixodbc
 )
 
 

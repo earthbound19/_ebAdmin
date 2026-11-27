@@ -8,8 +8,10 @@
 # CODE
 python -m pip install --upgrade pip
 
+# alphabetic list of used packages:
 pythonModules=(
 argparse
+cairosvg
 ciecam02
 coloraide
 coloraide_extras
@@ -24,23 +26,24 @@ extended_configparser
 faker
 Foundation
 gibberish
-gibberish
 global_hotkeys
 more_itertools
 numpy
 openpyxl
 pathlib
-Pillow
+pillow
 pyautogui
+pyfxr
+pyobjc-core
+pyobjc-framework-Quartz
 pyodbc
 PyQt6
-Quartz
-scipy
-screeninfo
-scour
+pywin32
 scikit-learn
+scipy
+scour
+screeninfo
 spectra
-spotipy
 spotipy
 truststore
 )
@@ -62,7 +65,6 @@ for element in ${pythonModules[@]}
 do
 	echo "----------------------------------------------------"
 	echo "Attempting to install $element via $pipExeName . . ."
-	$pipExeName install $element
-	# another option: pipe yes command to bypass yes prompt:
-	# yes | $pipExeName install $element
+	# pipe yes command to bypass yes prompt:
+	yes | $pipExeName install $element
 done

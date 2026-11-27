@@ -19,11 +19,11 @@
 setlocal EnableDelayedExpansion
 set n=0
 for %%a in (
-hub
 7zip.install
-openssh
 clink
+hub
 jq
+openssh
 ) do (
    choco install %%a -y
 )

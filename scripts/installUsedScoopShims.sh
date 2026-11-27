@@ -21,8 +21,8 @@ scoopShims=(
 "ffmpeg-gyan-nightly"		# re https://www.gyan.dev/ffmpeg/builds/ and the recommendation at https://www.gyan.dev/ffmpeg/builds/#about-these-builds -- IF THAT THROWS a not found error try "versions/ffmpeg-gyan-nightly"
 # "versions/ffmpeg-nightly"		# possible alternate for the above
 ghostscript
-"main/imagemagick"
 "main/graphicsmagick"
+"main/imagemagick"
 "main/jq"
 )
 
