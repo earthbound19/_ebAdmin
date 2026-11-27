@@ -44,14 +44,15 @@ else
 fi
 
 MSYS2_packages=(
-vim
-perl
-p7zip
+bc
+diffutils
 gcc
 make
-diffutils
-bc
+mingw-w64-x86_64-gtk3
+p7zip
+perl
 rsync
+vim
 )
 
 echo "Installing packages from list of used ones.."
