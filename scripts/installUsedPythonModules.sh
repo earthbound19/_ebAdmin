@@ -4,6 +4,8 @@
 # USAGE
 # Run without any parameter:
 #    installUsedPythonModules.sh
+# NOTE
+# To install the pyfxr package on Windows, see build_and_install_pyfxr.bat
 
 # CODE
 python -m pip install --upgrade pip
@@ -33,7 +35,6 @@ openpyxl
 pathlib
 pillow
 pyautogui
-pyfxr
 pyobjc-core
 pyobjc-framework-Quartz
 pyodbc
@@ -68,3 +69,5 @@ do
 	# pipe yes command to bypass yes prompt:
 	yes | $pipExeName install $element
 done
+
+echo "DONE. To install the pyfxr package on Windows, see build_and_install_pyfxr.bat"
